@@ -15,23 +15,15 @@
  * For more detailed information on HttpCalloutMock, refer to the official Salesforce documentation: 
  * https://developer.salesforce.com/docs/atlas.en-us.apexref.meta/apexref/apex_interface_httpcalloutmock.htm
  */
-public with sharing class DummyJSONCalloutMockGenerator implements HttpCalloutMock {
-	public static String DUMMY_JSON_USER_PAYLOAD = '{"id": 1, "firstName":"Johnny", "lastName":"Test", "email": "test@example.com", "phone": "+123456789", "birthDate": "1990-01-01", "address": {"address": "123 Test St", "city": "Test City", "postalCode": "12345", "state": "TS", "country": "Testland"}}';
-
+@IsTest
+public class DummyJSONCalloutMockGenerator implements HttpCalloutMock {
+	public static final String DUMMY_JSON_USER_PAYLOAD = '{"id":1,"firstName":"Test","lastName":"User","email":"test@example.com","phone":"+123456789","birthDate":"1990-01-01","address":{"address":"123 Test St","city":"Test City","postalCode":"12345","state":"TS","country":"Testland"}}';
+	
 	public HTTPResponse respond(HTTPRequest req) {
-		// Create a fake response
 		HttpResponse res = new HttpResponse();
 		res.setHeader('Content-Type', 'application/json');
-
-		// Check if the request is a POST request
-		if (req.getMethod() == 'POST') {
-			// Return a success response for the POST request
-			res.setBody('{"status": "success"}');
-		} else {
-			// Return the dummy user details for the GET request
-			res.setBody(DUMMY_JSON_USER_PAYLOAD);
-		}
 		res.setStatusCode(200);
+		res.setBody(DUMMY_JSON_USER_PAYLOAD);
 		return res;
 	}
 }
