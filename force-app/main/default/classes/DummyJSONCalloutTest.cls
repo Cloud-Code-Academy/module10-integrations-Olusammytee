@@ -133,44 +133,33 @@ public with sharing class DummyJSONCalloutTest {
 
 	@IsTest
 	static void testContactInsert() {
-		//Create 100 contact
+		// Create contact
 		List<Contact> contacts = new List<Contact>();
-		for (Integer i = 0; i < 1; i++) {
-			contacts.add(new Contact(FirstName = 'Test', LastName = 'User' + i));
-		}
-
+		contacts.add(new Contact(FirstName = 'Test', LastName = 'User'));
+		
 		// Register the mock callout class
 		Test.setMock(HttpCalloutMock.class, new DummyJSONCalloutMockGenerator());
 
-		// As this is a future method, we need to enclose it in Test.startTest() and Test.stopTest() to ensure it's executed in the test context.
 		Test.startTest();
-		Database.DMLOptions dml = new Database.DMLOptions();
-		dml.DuplicateRuleHeader.allowSave = true;
-		dml.DuplicateRuleHeader.runAsCurrentUser = true;
-		Database.SaveResult[] sr = Database.insert(contacts, dml);
+		insert contacts;
 		Test.stopTest();
 
-		// After the stopTest, the future method will have run. Now we can check if the contact was created correctly.
+		// Query after async operations complete
 		contacts = [
-			SELECT
-				DummyJSON_Id__c,
-				Email,
-				Phone,
-				Birthdate,
-				MailingStreet,
-				MailingCity,
-				MailingPostalCode,
-				MailingState,
-				MailingCountry
-			FROM Contact
-			WHERE Id IN :contacts AND DummyJSON_Id__c != NULL
+			SELECT DummyJSON_Id__c, Email, Phone, Birthdate, 
+				   MailingStreet, MailingCity, MailingPostalCode, 
+				   MailingState, MailingCountry
+			FROM Contact 
+			WHERE Id IN :contacts
 		];
+		
 		Assert.isTrue(!contacts.isEmpty(), 'No contacts were created');
-
 		for (Contact cont : contacts) {
-			Assert.isTrue(cont.DummyJSON_Id__c.isNumeric(), 'DummyJSON_Id is not numeric string');
+			Assert.isNotNull(cont.DummyJSON_Id__c, 'DummyJSON_Id__c should not be null');
+			Assert.isTrue(cont.DummyJSON_Id__c.isNumeric(), 'DummyJSON_Id__c should be numeric');
 			Integer dummyJSONId = Integer.valueOf(cont.DummyJSON_Id__c);
-			Assert.isTrue(dummyJSONId >= 0 && dummyJSONId <= 100, 'Expected range of DummyJSON_Id is [0-100]');
+			Assert.isTrue(dummyJSONId > 0 && dummyJSONId <= 100, 
+				'DummyJSON_Id__c should be between 1 and 100');
 		}
 	}
 
