@@ -69,7 +69,7 @@ public with sharing class DummyJSONCallout {
 	 * @return A Contact object created from the JSON response.
 	 */
 	@TestVisible // Allows test class to see this method. Since it is private, it would not be visible otherwise.
-	private static Contact createContactFromJson(String jsonResponse) {
+	public static Contact createContactFromJson(String jsonResponse) {
 		// Deserialize the JSON string into map of primitive data types.
         Map<String, Object> jsonData = (Map<String, Object>)JSON.deserializeUntyped(jsonResponse);
         
