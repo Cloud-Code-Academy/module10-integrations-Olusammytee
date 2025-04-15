@@ -68,7 +68,7 @@ public with sharing class DummyJSONCallout {
 	 * @param jsonResponse The JSON response from the DummyJSON API.
 	 * @return A Contact object created from the JSON response.
 	 */
-	@TestVisible // Allows test class to see this method. Since it is private, it would not be visible otherwise.
+	@TestVisible // Allows test class to see this method
 	public static Contact createContactFromJson(String jsonResponse) {
 		// Deserialize the JSON string into map of primitive data types.
         Map<String, Object> jsonData = (Map<String, Object>)JSON.deserializeUntyped(jsonResponse);
@@ -77,8 +77,12 @@ public with sharing class DummyJSONCallout {
         Contact cont = new Contact();
         
 		// Set the contact fields from the JSON response.
-        cont.Email = (String)jsonData.get('email');
-        cont.Phone = (String)jsonData.get('phone');
+        if (jsonData.containsKey('email')) {
+            cont.Email = (String)jsonData.get('email');
+        }
+        if (jsonData.containsKey('phone')) {
+            cont.Phone = (String)jsonData.get('phone');
+        }
         
         // Add firstName and lastName fields
         if (jsonData.containsKey('firstName')) {
@@ -182,7 +186,7 @@ public with sharing class DummyJSONCallout {
 	 * @param contactId The Salesforce Contact ID used to generate the JSON payload for the external system.
 	 * @return A JSON string to send to the DummyJSON API.
 	 */
-	@TestVisible // Allows test class to see this method. Since it is private, it would not be visible otherwise.
+	@TestVisible // Allows test class to see this method
 	public static String generateDummyJsonUserPayload(String contactId) {
 		// Query the contact to get the field values to generate the JSON payload.
         Contact cont = [SELECT Id, FirstName, LastName, Email, Phone FROM Contact WHERE Id = :contactId LIMIT 1];
