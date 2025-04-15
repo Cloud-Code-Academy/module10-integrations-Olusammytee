@@ -44,11 +44,7 @@ trigger ContactTrigger on Contact(before insert, after insert, after update) {
     // If DummyJSON_Id__c is greater than 100, call the postCreateDummyJSONUser API
     if (Trigger.isAfter && Trigger.isUpdate) {
         for (Contact cont : Trigger.new) {
-            Contact oldCont = Trigger.oldMap.get(cont.Id);
-            // Only make the callout if DummyJSON_Id__c has changed
-            if (cont.DummyJSON_Id__c != null && 
-                cont.DummyJSON_Id__c != oldCont.DummyJSON_Id__c && 
-                Integer.valueOf(cont.DummyJSON_Id__c) > 100) {
+            if (cont.DummyJSON_Id__c != null && Integer.valueOf(cont.DummyJSON_Id__c) > 100) {
                 DummyJSONCallout.postCreateDummyJSONUser(cont.Id);
             }
         }
