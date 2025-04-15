@@ -95,7 +95,11 @@ public with sharing class DummyJSONCallout {
         // Parse the birthdate string to a Date
         if (jsonData.containsKey('birthDate')) {
             String birthDateStr = (String)jsonData.get('birthDate');
-            cont.Birthdate = Date.valueOf(birthDateStr);
+            try {
+                cont.Birthdate = Date.valueOf(birthDateStr);
+            } catch (Exception e) {
+                System.debug('Error parsing birthDate: ' + e.getMessage());
+            }
         }
         
 		// Deserialize the address from the JSON response.
