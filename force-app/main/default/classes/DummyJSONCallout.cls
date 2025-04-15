@@ -183,7 +183,7 @@ public with sharing class DummyJSONCallout {
 	 * @return A JSON string to send to the DummyJSON API.
 	 */
 	@TestVisible // Allows test class to see this method. Since it is private, it would not be visible otherwise.
-	private static String generateDummyJsonUserPayload(String contactId) {
+	public static String generateDummyJsonUserPayload(String contactId) {
 		// Query the contact to get the field values to generate the JSON payload.
         Contact cont = [SELECT Id, FirstName, LastName, Email, Phone FROM Contact WHERE Id = :contactId LIMIT 1];
         
