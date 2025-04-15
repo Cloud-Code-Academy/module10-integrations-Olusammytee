@@ -20,12 +20,14 @@ public with sharing class DummyJSONCalloutTest {
 
 		// After the stopTest, the future method will have run. Now we can check if the contact was created correctly.
 		cont = [
-			SELECT Email, Phone, Birthdate, MailingStreet, MailingCity, MailingPostalCode, MailingState, MailingCountry
+			SELECT FirstName, LastName, Email, Phone, Birthdate, MailingStreet, MailingCity, MailingPostalCode, MailingState, MailingCountry
 			FROM Contact
 			WHERE DummyJSON_Id__c = '1'
 		];
 
 		// Assert statements to ensure that the values in the created contact match what was in our mock response.
+		System.assertEquals('Johnny', cont.FirstName, 'FirstName does not match your value: ' + cont.FirstName);
+		System.assertEquals('Test', cont.LastName, 'LastName does not match your value: ' + cont.LastName);
 		System.assertEquals('test@example.com', cont.Email, 'Email does not match your value: ' + cont.Email);
 		System.assertEquals('+123456789', cont.Phone, 'Phone does not match your value: ' + cont.Phone);
 		System.assertEquals(
@@ -121,6 +123,8 @@ public with sharing class DummyJSONCalloutTest {
 		Contact cont = DummyJSONCallout.createContactFromJson(jsonResponse);
 
 		// Assertions to check if the Contact object was populated correctly
+		System.assertEquals('Johnny', cont.FirstName, 'FirstName does not match.');
+		System.assertEquals('Test', cont.LastName, 'LastName does not match.');
 		System.assertEquals('test@example.com', cont.Email, 'Email does not match.');
 		System.assertEquals('+123456789', cont.Phone, 'Phone does not match.');
 		System.assertEquals(Date.valueOf('1990-01-01'), cont.Birthdate, 'Birthdate does not match.');
