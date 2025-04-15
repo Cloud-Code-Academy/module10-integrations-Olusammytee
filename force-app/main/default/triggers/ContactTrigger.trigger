@@ -1,18 +1,19 @@
 /**
- * ContactTrigger Trigger Description:
+ * ContactTrigger
  * 
- * The ContactTrigger is designed to handle various logic upon the insertion and update of Contact records in Salesforce. 
+ * This trigger handles callouts to the DummyJSONCallout class to retrieve/send user data from the Dummy JSON API.
  * 
- * Key Behaviors:
- * 1. When a new Contact is inserted and doesn't have a value for the DummyJSON_Id__c field, the trigger generates a random number between 0 and 100 for it.
- * 2. Upon insertion, if the generated or provided DummyJSON_Id__c value is less than or equal to 100, the trigger initiates the getDummyJSONUserFromId API call.
- * 3. If a Contact record is updated and the DummyJSON_Id__c value is greater than 100, the trigger initiates the postCreateDummyJSONUser API call.
+ * When contacts are inserted:
+ * - If DummyJSON_Id__c is null, a random number between 0 and 100 is generated and set as the contact's DummyJSON_Id__c
+ * - If DummyJSON_Id__c is less than or equal to 100, the getDummyJSONUserFromId API is called
  * 
- * Best Practices for Callouts in Triggers:
+ * When contacts are updated:
+ * - If DummyJSON_Id__c is greater than 100, the postCreateDummyJSONUser API is called
  * 
- * 1. Avoid Direct Callouts: Triggers do not support direct HTTP callouts. Instead, use asynchronous methods like @future or Queueable to make the callout.
- * 2. Bulkify Logic: Ensure that the trigger logic is bulkified so that it can handle multiple records efficiently without hitting governor limits.
- * 3. Avoid Recursive Triggers: Ensure that the callout logic doesn't result in changes that re-invoke the same trigger, causing a recursive loop.
+ * Note: HTTP callouts cannot be performed in the same transaction as DML operations.
+ * This is why we need to use @future methods in the DummyJSONCallout class.
+ * 
+ * @see DummyJSONCallout
  * 
  * Optional Challenge: Use a trigger handler class to implement the trigger logic.
  */
@@ -43,7 +44,11 @@ trigger ContactTrigger on Contact(before insert, after insert, after update) {
     // If DummyJSON_Id__c is greater than 100, call the postCreateDummyJSONUser API
     if (Trigger.isAfter && Trigger.isUpdate) {
         for (Contact cont : Trigger.new) {
-            if (cont.DummyJSON_Id__c != null && Integer.valueOf(cont.DummyJSON_Id__c) > 100) {
+            Contact oldCont = Trigger.oldMap.get(cont.Id);
+            // Only make the callout if DummyJSON_Id__c has changed
+            if (cont.DummyJSON_Id__c != null && 
+                cont.DummyJSON_Id__c != oldCont.DummyJSON_Id__c && 
+                Integer.valueOf(cont.DummyJSON_Id__c) > 100) {
                 DummyJSONCallout.postCreateDummyJSONUser(cont.Id);
             }
         }
